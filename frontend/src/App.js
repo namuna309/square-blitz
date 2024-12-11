@@ -11,7 +11,6 @@ function App() {
   const [gameOver, setGameOver] = useState(false); 
   const [allSpawned, setAllSpawned] = useState(false);
   const [showRetry, setShowRetry] = useState(false);
-
   const SQUARE_SIZE = 40;
   const TOTAL_SQUARES = 50;
 
