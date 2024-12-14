@@ -1,12 +1,33 @@
-version: "3.2"
 services:
-  frontend:
-    restart: always
-    command : npm start
-    container_name: front
+  backend:
     build:
-      context: ./frontend/
+      context: .
       dockerfile: Dockerfile
     ports:
+      - "3001:3001" # 호스트의 3001 포트를 컨테이너의 3001 포트로 매핑
+    environment:
+      NODE_ENV: production
+    volumes:
+      - ./backend:/app/backend
+      - ./frontend/public:/app/frontend/public
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    depends_on:
+      - backend # Prometheus는 backend가 실행 중일 때만 실행
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
       - "3000:3000"
-    stdin_open: true
+    volumes:
+      - grafana-storage:/var/lib/grafana
+
+volumes:
+  grafana-storage: {}
