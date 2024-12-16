@@ -23,7 +23,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-          cd ~/app
+          cd ~/app/square-blitz
           git pull origin main
           docker-compose down
           docker-compose up -d
