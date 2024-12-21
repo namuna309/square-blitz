@@ -26,6 +26,7 @@ const restrictToPrivateIP = (req, res, next) => {
   const clientIP = req.ip || req.connection.remoteAddress;
  
   if (PRIVATE_IP === clientIP) {
+    console.log(`Access approved for IP: ${clientIP}`);
     return next(); // 프라이빗 IP에서 온 요청은 허용
   }
 

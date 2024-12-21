@@ -8,8 +8,8 @@ services:
     environment:
       NODE_ENV: production
     volumes:
-      - ./backend:/usr/src/app/backend
-      - ./frontend/public:/usr/src/app/frontend/public
+      - ./backend:/app/backend
+      - ./frontend/public:/app/frontend/public
 
   prometheus:
     image: prom/prometheus:latest

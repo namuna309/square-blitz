@@ -12,7 +12,7 @@ RUN cd backend && npm install
 COPY backend ./backend
 
 # React 정적 파일 복사
-COPY frontend/public ./frontend/public
+COPY /frontend/public ./frontend/public
 
 # 환경 변수 파일 복사 (필요 시)
 COPY .env ./
