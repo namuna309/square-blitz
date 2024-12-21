@@ -9,13 +9,14 @@ COPY /backend/package*.json ./backend/
 RUN cd backend && npm install
 
 # 백엔드 코드 복사
-COPY /backend ./backend
+COPY backend ./backend
 
 # React 정적 파일 복사
-COPY /frontend/public ./frontend/public
+COPY frontend/public ./frontend/public
 
 # 환경 변수 파일 복사 (필요 시)
-COPY /backend/.env ./backend/
+COPY .env ./
+
 
 # 비루트 사용자로 실행
 # Express 서버 실행
