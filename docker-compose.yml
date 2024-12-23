@@ -20,6 +20,12 @@ services:
       - EC2_PRIVATE_IP=${EC2_PRIVATE_IP} # 환경변수 전달
     ports:
       - "9090:9090"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        sed 's/${EC2_PRIVATE_IP}/'${EC2_PRIVATE_IP}'/g' /etc/prometheus/prometheus.yml.template > /etc/prometheus/prometheus.yml && \
+        /bin/prometheus --config.file=/etc/prometheus/prometheus.yml
     depends_on:
       - backend # Prometheus는 backend가 실행 중일 때만 실행
 
