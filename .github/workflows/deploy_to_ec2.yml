@@ -26,4 +26,5 @@ jobs:
           cd ~/app/square-blitz
           git pull origin main
           docker-compose down
+          docker-compose build
           docker-compose up -d
