@@ -1,0 +1,7 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "node_app"
+    static_configs:
+       - targets: ['${EC2_PRIVATE_IP}:3001']  # Express 서버의 메트릭 엔드포인트

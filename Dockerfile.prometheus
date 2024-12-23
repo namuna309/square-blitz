@@ -1,0 +1,15 @@
+# Debian slim 기반 이미지 사용
+FROM debian:bullseye-slim
+
+# 필요한 패키지 설치
+RUN apt-get update && apt-get install -y wget gettext-base && rm -rf /var/lib/apt/lists/*
+
+# Prometheus 바이너리 다운로드 및 설치
+RUN wget https://github.com/prometheus/prometheus/releases/download/v2.46.0/prometheus-2.46.0.linux-amd64.tar.gz \
+    && tar -xvf prometheus-2.46.0.linux-amd64.tar.gz \
+    && mv prometheus-2.46.0.linux-amd64/prometheus /bin/ \
+    && mv prometheus-2.46.0.linux-amd64/promtool /bin/ \
+    && rm -rf prometheus-2.46.0.linux-amd64*
+
+# 기본 실행 명령
+CMD ["prometheus", "--config.file=/etc/prometheus/prometheus.yml"]

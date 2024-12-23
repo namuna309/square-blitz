@@ -1,8 +1,9 @@
 services:
   backend:
+    container_name: backend
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.backend
     ports:
       - "3001:3001" # 호스트의 3001 포트를 컨테이너의 3001 포트로 매핑
     environment:
@@ -12,16 +13,21 @@ services:
       - ./frontend/public:/app/frontend/public
 
   prometheus:
-    image: prom/prometheus:latest
     container_name: prometheus
+    build:
+      context: .
+      dockerfile: Dockerfile.prometheus
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      # - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus.yml.template:/etc/prometheus/prometheus.yml.template
     environment:
       - EC2_PRIVATE_IP=${EC2_PRIVATE_IP} # 환경변수 전달
     ports:
       - "9090:9090"
     depends_on:
       - backend # Prometheus는 backend가 실행 중일 때만 실행
+    entrypoint: >
+      sh -c "envsubst < /etc/prometheus/prometheus.yml.template > /etc/prometheus/prometheus.yml && prometheus --config.file=/etc/prometheus/prometheus.yml"
 
   grafana:
     image: grafana/grafana:latest
