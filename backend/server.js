@@ -21,7 +21,7 @@ const httpRequestCounter = new promClient.Counter({
 register.registerMetric(httpRequestCounter);
 
 // IP 제한 미들웨어
-const allowedIPs = [PRIVATE_IP, '127.0.0.1', '::1', '172.17.0.0/16']; // Docker 네트워크 대역 추가
+const allowedIPs = [PRIVATE_IP, '127.0.0.1', '::1', '172.29.0.0/16']; // Docker 네트워크 대역 추가
 
 const restrictToPrivateIP = (req, res, next) => {
   
