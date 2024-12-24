@@ -9,7 +9,7 @@ const promClient = require('prom-client'); // Prometheus 클라이언트 라이�
 const app = express();
 const PORT = process.env.PORT || 3001;
 const PRIVATE_IP = process.env.EC2_PRIVATE_IP
-const PROMETHEUS_IP = process.env.PROMETHEUS_IP; // Prometheus IP 환경변수
+const DOCKER_GATEWAY = process.env.DOCKER_GATEWAY; // Prometheus IP 환경변수
 
 // Prometheus 메트릭 설정
 const register = new promClient.Registry(); // promClient에서 Registry 호출
@@ -23,7 +23,7 @@ const httpRequestCounter = new promClient.Counter({
 register.registerMetric(httpRequestCounter);
 
 // IP 제한 미들웨어
-const allowedIPs = [PRIVATE_IP, PROMETHEUS_IP, '127.0.0.1', '::1'];
+const allowedIPs = [PRIVATE_IP, DOCKER_GATEWAY, '127.0.0.1', '::1'];
 
 const restrictToPrivateIP = (req, res, next) => {
   
@@ -35,7 +35,7 @@ const restrictToPrivateIP = (req, res, next) => {
   }
 
   if (allowedIPs.some(ip => clientIP.startsWith(ip))) {
-    if (clientIP == PROMETHEUS_IP) {
+    if (clientIP == DOCKER_GATEWAY) {
       console.log(`Access approved for Prometheus: ${clientIP}`)
     }
     else{
