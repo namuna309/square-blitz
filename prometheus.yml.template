@@ -4,4 +4,4 @@ global:
 scrape_configs:
   - job_name: "node_app"
     static_configs:
-       - targets: ['backend:3001']  # Express 서버의 메트릭 엔드포인트
+       - targets: ["${CONTAINER_IP}:3001"]  # Express 서버의 메트릭 엔드포인트

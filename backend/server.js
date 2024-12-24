@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const apiRoutes = require("./routes");
+const { execSync } = require("child_process"); // 명령 실행을 위한 child_process
 require('dotenv').config({ path: '../.env' });
 
 const promClient = require('prom-client'); // Prometheus 클라이언트 라이브러리 불러오기
@@ -8,6 +9,7 @@ const promClient = require('prom-client'); // Prometheus 클라이언트 라이�
 const app = express();
 const PORT = process.env.PORT || 3001;
 const PRIVATE_IP = process.env.EC2_PRIVATE_IP
+const PROMETHEUS_IP = process.env.PROMETHEUS_IP; // Prometheus IP 환경변수
 
 // Prometheus 메트릭 설정
 const register = new promClient.Registry(); // promClient에서 Registry 호출
@@ -21,14 +23,24 @@ const httpRequestCounter = new promClient.Counter({
 register.registerMetric(httpRequestCounter);
 
 // IP 제한 미들웨어
-const allowedIPs = [PRIVATE_IP, '127.0.0.1', '::1', '172.29.0.0/16']; // Docker 네트워크 대역 추가
+const allowedIPs = [PRIVATE_IP, PROMETHEUS_IP, '127.0.0.1', '::1'];
 
 const restrictToPrivateIP = (req, res, next) => {
   
-  const clientIP = req.ip || req.connection.remoteAddress;
- 
+  let clientIP = req.ip || req.connection.remoteAddress;
+  
+  // IPv6 스타일 (::ffff:)을 제거하여 순수 IPv4 주소로 변환
+  if (clientIP.startsWith("::ffff:")) {
+    clientIP = clientIP.split("::ffff:")[1];
+  }
+
   if (allowedIPs.some(ip => clientIP.startsWith(ip))) {
-    console.log(`Access approved for IP: ${clientIP}`);
+    if (clientIP == PROMETHEUS_IP) {
+      console.log(`Access approved for Prometheus: ${PROMETHEUS_IP}`)
+    }
+    else{
+      console.log(`Access approved for IP: ${clientIP}`);
+    }
     return next(); // 프라이빗 IP에서 온 요청은 허용
   }
 
@@ -73,5 +85,6 @@ app.get('/metrics', restrictToPrivateIP, async (req, res) => {
 
 // 서버 시작
 app.listen(PORT, () => {
+  console.log(`allowed IPs: ${allowedIPs}`)
   console.log(`Server is running at http://localhost:${PORT}`);
 });
