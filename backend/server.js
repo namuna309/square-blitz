@@ -36,7 +36,7 @@ const restrictToPrivateIP = (req, res, next) => {
 
   if (allowedIPs.some(ip => clientIP.startsWith(ip))) {
     if (clientIP == PROMETHEUS_IP) {
-      console.log(`Access approved for Prometheus: ${PROMETHEUS_IP}`)
+      console.log(`Access approved for Prometheus: ${clientIP}`)
     }
     else{
       console.log(`Access approved for IP: ${clientIP}`);
