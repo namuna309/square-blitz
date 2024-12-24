@@ -11,6 +11,8 @@ services:
     volumes:
       - ./backend:/app/backend
       - ./frontend/public:/app/frontend/public
+    networks:
+      - monitoring
 
   prometheus:
     container_name: prometheus
@@ -28,6 +30,8 @@ services:
       - backend # Prometheus는 backend가 실행 중일 때만 실행
     entrypoint: >
       sh -c "envsubst < /etc/prometheus/prometheus.yml.template > /etc/prometheus/prometheus.yml && prometheus --config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana:latest
@@ -36,6 +40,12 @@ services:
       - "3000:3000"
     volumes:
       - grafana-storage:/var/lib/grafana
+    networks:
+      - monitoring
 
 volumes:
   grafana-storage: {}
+
+networks:
+  monitoring:
+    driver: bridge
