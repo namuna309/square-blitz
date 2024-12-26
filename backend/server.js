@@ -9,7 +9,6 @@ const promClient = require('prom-client'); // Prometheus 클라이언트 라이�
 const app = express();
 const PORT = process.env.PORT || 3001;
 const PRIVATE_IP = process.env.EC2_PRIVATE_IP
-const DOCKER_GATEWAY = process.env.DOCKER_GATEWAY; // Prometheus IP 환경변수
 
 // Prometheus 메트릭 설정
 const register = new promClient.Registry(); // promClient에서 Registry 호출
@@ -23,6 +22,18 @@ const httpRequestCounter = new promClient.Counter({
 register.registerMetric(httpRequestCounter);
 
 // IP 제한 미들웨어
+let DOCKER_GATEWAY = null;
+
+try {
+  console.log("Fetching Docker Gateway IP...");
+  DOCKER_GATEWAY = execSync("ip route | grep default | awk '{print $3}'").toString().trim();
+  console.log(`Docker Gateway IP: ${DOCKER_GATEWAY}`);
+} catch (error) {
+  console.error("Failed to fetch Docker Gateway IP:", error);
+  DOCKER_GATEWAY = "127.0.0.1"; // 기본값으로 로컬호스트 사용
+}
+
+
 const allowedIPs = [PRIVATE_IP, DOCKER_GATEWAY, '127.0.0.1', '::1'];
 
 const restrictToPrivateIP = (req, res, next) => {

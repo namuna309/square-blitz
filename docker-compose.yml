@@ -13,23 +13,6 @@ services:
       - ./frontend/public:/app/frontend/public
     networks:
       - monitoring
-    depends_on:
-      update_env:
-        condition: service_completed_successfully    # update_env 컨테이너 실행 후 실행
-      
-  update_env:
-    container_name: update_env
-    image: alpine:latest  # 경량 Alpine 이미지 사용
-    volumes:
-      - ./update_env.sh:/update_env.sh  # 스크립트 마운트
-      - ./.env:/.env  # .env 파일을 업데이트하기 위해 마운트
-    working_dir: /  # 실행 디렉토리 설정
-    entrypoint: sh /update_env.sh  # update_env.sh 스크립트 실행
-    networks:
-      - monitoring
-    depends_on:
-      prometheus:
-        condition: service_healthy  # prometheus가 준비된 후 실행
 
 
   prometheus:
@@ -48,12 +31,6 @@ services:
       sh -c 'export CONTAINER_IP=$(hostname -i) && envsubst < /etc/prometheus/prometheus.yml.template > /etc/prometheus/prometheus.yml && prometheus --config.file=/etc/prometheus/prometheus.yml'
     networks:
       - monitoring
-    healthcheck:
-      test: ["CMD", "wget", "http://localhost:9090"]
-      interval: 10s
-      timeout: 15s
-      retries: 10
-      start_period: 40s
 
   grafana:
     image: grafana/grafana:latest
