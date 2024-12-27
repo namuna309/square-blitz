@@ -16,7 +16,7 @@ COPY ./frontend/public /usr/src/app/frontend/public
 
 # 환경 변수 파일 복사 (필요 시)
 COPY .env /usr/src/app/.env
-
+COPY ./frontend/.env /usr/src/app/frontend/.env
 
 # 비루트 사용자로 실행
 # Express 서버 실행

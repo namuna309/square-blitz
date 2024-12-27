@@ -49,6 +49,8 @@ function App() {
 
   // ID를 가져옴
   const userId = getUserId();
+  const EC2_PUBLIC_ENDPOINT = process.env.REACT_APP_EC2_PUBLIC_ENDPOINT;
+  const EC2_PORT = process.env.REACT_APP_EC2_PORT;
 
   const logEvent = async (event, details) => {
     console.log('logEvent started', event, details);
@@ -60,7 +62,7 @@ function App() {
     };
   
     // 서버로 로그 전송 (server.js와 연계)
-    await fetch('http://localhost:3001/api/log-game-start', {
+    await fetch(`${EC2_PUBLIC_ENDPOINT}:${EC2_PORT}/api/log-game-start`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(log),
@@ -124,7 +126,7 @@ function App() {
         successRate: (clickedCount / TOTAL_SQUARES) * 100,
       };
   
-      fetch('http://localhost:3001/api/log-game-data', {
+      fetch(`${EC2_PUBLIC_ENDPOINT}:${EC2_PORT}/api/log-game-data`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(gameData),
