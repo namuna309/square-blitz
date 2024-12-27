@@ -35,7 +35,39 @@ function App() {
 
   const timersRef = useRef({});
 
+  const getUserId = () => {
+    let userId = localStorage.getItem('userId');
+    
+    if (!userId) {
+      // userId가 없으면 새로 생성
+      userId = Date.now() + Math.floor(Math.random() * 1_000_000); // 간단한 ID 생성 예
+      localStorage.setItem('userId', userId);
+    }
+    
+    return userId;
+  };
+
+  // ID를 가져옴
+  const userId = getUserId();
+
+  const logEvent = async (event, details) => {
+    console.log('logEvent started', event, details);
+    const log = {
+      userId: userId,
+      timestamp: new Date().toISOString(),
+      event,
+      details,
+    };
+  
+    // 서버로 로그 전송 (server.js와 연계)
+    await fetch('http://localhost:3001/api/log-game-start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(log),
+    });
+  };
   const handleStart = () => {
+    logEvent('game_start', { clickedAt: Date.now() });
     setFadeOut(true);
   };
 
@@ -80,6 +112,25 @@ function App() {
       return () => clearTimeout(endTimer);
     }
   }, [allSpawned, squares, gameOver]);
+
+  // 게임 종료 시 결과 LOG 처리
+  useEffect(() => {
+    if (gameOver) {
+      const gameData = {
+        userId: userId,
+        timestamp: new Date().toISOString(),
+        totalSquares: TOTAL_SQUARES,
+        clickedCount: clickedCount,
+        successRate: (clickedCount / TOTAL_SQUARES) * 100,
+      };
+  
+      fetch('http://localhost:3001/api/log-game-data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(gameData),
+      });
+    }
+  }, [gameOver]);
 
   // 게임 종료 후 1초 뒤 Retry 버튼 표시
   useEffect(() => {

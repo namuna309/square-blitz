@@ -38,4 +38,7 @@ node_modules/
 ### security ###
 .env
 
+### prometheus data ###
+prometheus_data/
+
 # End of https://www.toptal.com/developers/gitignore/api/react,git
