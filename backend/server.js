@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const axios = require('axios');
 const path = require("path");
 const apiRoutes = require("./routes");
@@ -63,6 +64,11 @@ const restrictToPrivateIP = (req, res, next) => {
   res.status(403).send('Access to /metrics is restricted to private network.');
 };
 
+app.use(cors({
+  origin: '*', // 모든 Origin 허용 (또는 특정 Origin만 허용)
+  methods: ['GET', 'POST', 'OPTIONS'], // 허용할 HTTP 메서드
+  allowedHeaders: ['Content-Type', 'Authorization'], // 허용할 요청 헤더
+}));
 
 // 미들웨어: HTTP 요청 카운터 증가
 app.use((req, res, next) => {
