@@ -41,4 +41,7 @@ node_modules/
 ### prometheus data ###
 prometheus_data/
 
+### AWS Lamda Layer ###
+layer/
+
 # End of https://www.toptal.com/developers/gitignore/api/react,git

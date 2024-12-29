@@ -53,7 +53,6 @@ function App() {
   const EC2_PORT = process.env.REACT_APP_EC2_PORT;
 
   const logEvent = async (event, details) => {
-    console.log('logEvent started', event, details);
     const log = {
       userId: userId,
       timestamp: new Date().toISOString(),
