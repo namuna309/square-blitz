@@ -117,20 +117,23 @@ def fetch_and_send_logs(index_name, start_date, end_date, chunk_size=5000):
 
 # Lambda 핸들러
 def lambda_handler(event, context):
-    index_name = event.get('index_name')
-    if index_name not in ["game-start-logs", "game-data-logs"]:
-        return {
-            "statusCode": 400,
-            "body": json.dumps({"status": "error", "message": "Invalid index_name"})
-        }
 
     # 하루 전 날짜 계산
     today = datetime.now()
     start_date = (today - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + "Z"  # 2024-12-29T00:00:00.000Z
     end_date = today.replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + "Z"  # 2024-12-30T00:00:00.000Z
+    results = []
 
     # OpenSearch에서 로그 가져오기 및 SQS로 전송
-    result = fetch_and_send_logs(index_name, start_date, end_date)
+    for index_name in ["game-data-logs", "game-start-logs"]:
+        results.append(fetch_and_send_logs(index_name, start_date, end_date))
+
+    for result in results:
+        if result["status"] != "success":
+            return {
+                "statusCode": 500,
+                "body": json.dumps(result)
+            }
 
     return {
         "statusCode": 200 if result["status"] == "success" else 500,
@@ -138,6 +141,4 @@ def lambda_handler(event, context):
     }
 
 if __name__ == "__main__":
-    lambda_handler({
-  "index_name": "game-data-logs"
-}, '')
+    lambda_handler('', '')
