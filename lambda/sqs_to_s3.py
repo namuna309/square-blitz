@@ -25,7 +25,7 @@ table = dynamodb.Table(DYNAMODB_TABLE_NAME)
 def save_logs_to_s3_parquet(index_name, chunk_data, chunk_index):
     # S3 저장 경로 생성
     today = datetime.now().strftime('year=%Y/month=%m/day=%d')
-    s3_path = f"{index_name}/{today}/{index_name}-{chunk_index}.parquet"
+    s3_path = f"{index_name}/{index_name.upper()}/{today}/{chunk_index}.parquet"
 
     try:
         # Pandas DataFrame으로 변환
