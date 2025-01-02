@@ -4,7 +4,7 @@ import json
 import os
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 load_dotenv()
 
@@ -47,7 +47,6 @@ def fetch_and_send_logs(index_name, start_date, end_date, chunk_size=5000):
     auth = (OPENSEARCH_USERNAME, OPENSEARCH_PASSWORD)
     sqs = boto3.client('sqs')
 
-
     total_chunks = 0
     failed_messages = []
     successful_messages = []
@@ -57,7 +56,7 @@ def fetch_and_send_logs(index_name, start_date, end_date, chunk_size=5000):
         response = requests.post(url, headers=headers, auth=auth, json=query)
         response.raise_for_status()
         data = response.json()
-
+        
         hits = data['hits']['hits']
         scroll_id = data['_scroll_id']
         chunk_index = 0
@@ -87,8 +86,13 @@ def fetch_and_send_logs(index_name, start_date, end_date, chunk_size=5000):
                 scroll_response.raise_for_status()
                 scroll_data = scroll_response.json()
 
+                 # 다음 스크롤 ID 갱신
+                scroll_id = scroll_data.get('_scroll_id', None)
+                if not scroll_id:
+                    print("No scroll_id returned. Ending scroll.")
+                    break
+
                 hits = scroll_data['hits']['hits']
-                scroll_id = scroll_data['_scroll_id']
                     
             # 메시지 전송 결과 확인
             for future in as_completed(futures):
@@ -118,10 +122,24 @@ def fetch_and_send_logs(index_name, start_date, end_date, chunk_size=5000):
 # Lambda 핸들러
 def lambda_handler(event, context):
 
-    # 하루 전 날짜 계산
-    today = datetime.now()
-    start_date = (today - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + "Z"  # 2024-12-29T00:00:00.000Z
-    end_date = today.replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + "Z"  # 2024-12-30T00:00:00.000Z
+    # 한국 시간대 (UTC+9) 정의
+    KST = timezone(timedelta(hours=9))
+
+    # 오늘 날짜를 한국 시간 기준으로 계산
+    today_kst = datetime.now(tz=KST)
+
+    # 한국 시간 기준으로 이틀 전 자정
+    start_date_kst = (today_kst - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # 한국 시간 기준으로 하루 전 자정
+    end_date_kst = (today_kst - timedelta(days=0)).replace(hour=0, minute=0, second=0, microsecond=0)
+
+    # UTC로 변환
+    start_date = start_date_kst.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+    end_date = end_date_kst.astimezone(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+    print("Start Date (UTC):", start_date)  # 출력 예: 2024-12-27T15:00:00.000Z
+    print("End Date (UTC):", end_date)     
     results = []
 
     # OpenSearch에서 로그 가져오기 및 SQS로 전송

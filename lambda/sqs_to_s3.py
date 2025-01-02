@@ -15,9 +15,8 @@ dynamodb = boto3.resource('dynamodb')
 sqs = boto3.client('sqs')
 
 # 환경 변수 설정
-S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME')
-DYNAMODB_TABLE_NAME = os.getenv('DYNAMODB_TABLE_NAME')
-
+S3_BUCKET_NAME = os.getenv('S3_BUCKET_NAME', 'square-blitz-game-logs')
+DYNAMODB_TABLE_NAME = os.getenv('DYNAMODB_TABLE_NAME', 'MessageProcessingStatus')
 
 # DynamoDB 테이블 참조
 table = dynamodb.Table(DYNAMODB_TABLE_NAME)
@@ -25,8 +24,8 @@ table = dynamodb.Table(DYNAMODB_TABLE_NAME)
 # Parquet으로 S3에 데이터 저장
 def save_logs_to_s3_parquet(index_name, chunk_data, chunk_index):
     # S3 저장 경로 생성
-    today = datetime.now().strftime('%Y/%m/%d')
-    s3_path = f"{index_name}/{today}/logs-{chunk_index}.parquet"
+    today = datetime.now().strftime('year=%Y/month=%m/day=%d')
+    s3_path = f"{index_name}/{today}/{index_name}-{chunk_index}.parquet"
 
     try:
         # Pandas DataFrame으로 변환
