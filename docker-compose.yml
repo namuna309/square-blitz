@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend
     ports:
-      - "3001:3001" # 호스트의 3001 포트를 컨테이너의 3001 포트로 매핑
+      - "8080:3001" # 호스트의 8080 포트를 컨테이너의 3001 포트로 매핑
     environment:
       NODE_ENV: production
     volumes:
