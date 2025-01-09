@@ -9,7 +9,7 @@ require('dotenv').config({ path: '../.env' });
 const promClient = require('prom-client'); // Prometheus 클라이언트 라이브러리 불러오기
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 80;
 const PRIVATE_IP = process.env.EC2_PRIVATE_IP;
 const OPENSEARCH_ENDPOINT = process.env.OPENSEARCH_ENDPOINT;
 const OPENSEARCH_USERNAME = process.env.OPENSEARCH_USERNAME;
